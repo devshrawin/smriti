@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>स्मृति</title>
+<meta name="description" content="स्मृति — बोलकर याद रखें, बोलकर पूछें">
+<meta name="theme-color" content="#2F6F62">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7EF;
+    --surface: #FFFFFF;
+    --ink: #2B2118;
+    --ink-soft: #6B5D4F;
+    --teal: #2F6F62;
+    --teal-dark: #235148;
+    --amber: #C97A2B;
+    --amber-dark: #9E5E1E;
+    --rose: #B5473F;
+    --line: #E7DFCF;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #201A12;
+      --surface: #2B241A;
+      --ink: #F4ECDD;
+      --ink-soft: #C9BBA5;
+      --line: #4A3F2E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #201A12;
+    --surface: #2B241A;
+    --ink: #F4ECDD;
+    --ink-soft: #C9BBA5;
+    --line: #4A3F2E;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Hind', 'Atkinson Hyperlegible', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+    min-height: 100vh;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header h1 {
+    font-size: 30px;
+    margin: 0 0 4px;
+    font-weight: 700;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 17px;
+  }
+  .big-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 26px 24px;
+    border: none;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 18px;
+    text-align: left;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+  }
+  .big-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+  .big-btn .emoji { font-size: 40px; line-height: 1; flex-shrink: 0; }
+  .btn-remember { background: var(--teal); }
+  .btn-find { background: var(--amber); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .recent-title {
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin: 30px 0 12px;
+    font-weight: 700;
+  }
+  .memory-item {
+    font-size: 19px;
+    line-height: 1.5;
+    padding: 6px 0;
+  }
+  .memory-item button {
+    background: none;
+    border: none;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 19px;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    width: 100%;
+  }
+  .memory-date {
+    display: block;
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .empty-msg {
+    color: var(--ink-soft);
+    font-size: 18px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .back-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 19px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 8px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-box {
+    text-align: center;
+    padding: 30px 10px;
+  }
+  .mic-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    margin: 10px auto 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    color: #fff;
+  }
+  .mic-circle.remember { background: var(--teal); }
+  .mic-circle.find { background: var(--amber); }
+  .mic-circle.listening { animation: pulse 1.2s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(47,111,98,0.35); }
+    70% { box-shadow: 0 0 0 24px rgba(47,111,98,0); }
+    100% { box-shadow: 0 0 0 0 rgba(47,111,98,0); }
+  }
+  .mic-circle.find.listening { animation-name: pulseAmber; }
+  @keyframes pulseAmber {
+    0% { box-shadow: 0 0 0 0 rgba(201,122,43,0.35); }
+    70% { box-shadow: 0 0 0 24px rgba(201,122,43,0); }
+    100% { box-shadow: 0 0 0 0 rgba(201,122,43,0); }
+  }
+  .status-text {
+    font-size: 21px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  textarea, input[type=text] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 20px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    resize: vertical;
+    margin-bottom: 16px;
+  }
+  .action-row {
+    display: flex;
+    gap: 12px;
+  }
+  .action-row button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    color: #fff;
+  }
+  .save-btn { background: var(--teal); }
+  .search-btn { background: var(--amber); }
+  .cancel-btn { background: transparent; color: var(--ink-soft); border: 2px solid var(--line) !important; }
+
+  .result-box {
+    background: var(--surface);
+    border: 2px solid var(--teal);
+    border-radius: 18px;
+    padding: 24px;
+    font-size: 22px;
+    line-height: 1.6;
+    margin-top: 10px;
+  }
+  .result-box .rdate {
+    display: block;
+    margin-top: 10px;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+  .no-support {
+    font-size: 16px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 10px;
+  }
+  .delete-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    color: var(--rose);
+    font-size: 16px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- होम स्क्रीन -->
+  <div class="screen active" id="home">
+    <header>
+      <h1>स्मृति</h1>
+      <p>बटन दबाएं और बस बोलें</p>
+    </header>
+
+    <button class="big-btn btn-remember" onclick="goTo('remember')">
+      <span class="emoji">🎙️</span> कुछ याद रखें
+    </button>
+    <button class="big-btn btn-find" onclick="goTo('find')">
+      <span class="emoji">🔍</span> कुछ खोजें
+    </button>
+
+    <div class="recent-title">हाल ही में याद किया</div>
+    <div id="recentList"></div>
+  </div>
+
+  <!-- याद रखने की स्क्रीन -->
+  <div class="screen" id="remember">
+    <button class="back-btn" onclick="goTo('home')">← वापस</button>
+    <div class="status-box">
+      <div class="mic-circle remember" id="rememberMic">🎙️</div>
+      <div class="status-text" id="rememberStatus">माइक दबाएं और बताएं कि क्या याद रखना है</div>
+    </div>
+    <textarea id="rememberText" rows="3" placeholder="उदाहरण: मैंने चाबियां रसोई की दराज़ में रखीं"></textarea>
+    <div class="action-row">
+      <button class="cancel-btn" onclick="clearRemember()">मिटाएं</button>
+      <button class="save-btn" onclick="saveMemory()">सेव करें</button>
+    </div>
+    <p class="no-support" id="rememberNoSupport" style="display:none">इस ब्राउज़र में आवाज़ इनपुट उपलब्ध नहीं है — कृपया ऊपर बॉक्स में टाइप करें।</p>
+  </div>
+
+  <!-- खोजने की स्क्रीन -->
+  <div class="screen" id="find">
+    <button class="back-btn" onclick="goTo('home')">← वापस</button>
+    <div class="status-box">
+      <div class="mic-circle find" id="findMic">🔍</div>
+      <div class="status-text" id="findStatus">माइक दबाएं और पूछें कि कोई चीज़ कहाँ है</div>
+    </div>
+    <input type="text" id="findText" placeholder="उदाहरण: चाबियां कहाँ हैं">
+    <div class="action-row">
+      <button class="cancel-btn" onclick="clearFind()">मिटाएं</button>
+      <button class="search-btn" onclick="doSearch()">खोजें</button>
+    </div>
+    <p class="no-support" id="findNoSupport" style="display:none">इस ब्राउज़र में आवाज़ इनपुट उपलब्ध नहीं है — कृपया ऊपर सवाल टाइप करें।</p>
+    <div id="findResult"></div>
+  </div>
+
+  <!-- सभी यादें स्क्रीन -->
+  <div class="screen" id="all">
+    <button class="back-btn" onclick="goTo('home')">← वापस</button>
+    <div class="recent-title" style="margin-top:0">जो कुछ भी मुझे याद है</div>
+    <div id="allList"></div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'smriti.memories';
+const STOPWORDS = new Set(['मैंने','मैं','है','हैं','था','थी','थे','में','पर','को','का','की','के','यह','वह','कहाँ','कहां','कुछ','रखा','रखी','रखे','रख','रखें','याद','ढूंढें','ढूंढो','खोजें','खोजो','कि','से','और','भी','हो','हूं','हूँ','कहा','गया','गई','थीं','उस','इस']);
+
+function loadMemories() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveMemories(list) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function extractKeywords(text) {
+  return text.toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !STOPWORDS.has(w));
+}
+const HINDI_MONTHS = ["जनवरी","फ़रवरी","मार्च","अप्रैल","मई","जून","जुलाई","अगस्त","सितंबर","अक्टूबर","नवंबर","दिसंबर"];
+function formatDate(iso) {
+  const d = new Date(iso);
+  return `${d.getDate()} ${HINDI_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screen).classList.add('active');
+  if (screen === 'home') renderRecent();
+  if (screen === 'all') renderAll();
+  if (screen === 'remember') { document.getElementById('rememberText').value=''; document.getElementById('rememberStatus').textContent='माइक दबाएं और बताएं कि क्या याद रखना है'; }
+  if (screen === 'find') { document.getElementById('findText').value=''; document.getElementById('findResult').innerHTML=''; document.getElementById('findStatus').textContent='माइक दबाएं और पूछें कि कोई चीज़ कहाँ है'; }
+}
+
+function renderRecent() {
+  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const el = document.getElementById('recentList');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-msg">अभी कुछ भी सेव नहीं है। पहली चीज़ जोड़ने के लिए "कुछ याद रखें" दबाएं।</div>';
+    return;
+  }
+  const shown = list.slice(0,5);
+  el.innerHTML = shown.map(m => `
+    <div class="card memory-item">
+      <button onclick="speak(${JSON.stringify('मुझे यह याद है: ' + m.text + '। मुझे यह ' + formatDate(m.timestamp) + ' से याद है।')})">
+        ${escapeHtml(m.text)}
+        <span class="memory-date">${formatDate(m.timestamp)}</span>
+      </button>
+    </div>`).join('');
+  if (list.length > 5) {
+    el.innerHTML += `<div class="card memory-item"><button onclick="goTo('all')">जो कुछ भी मुझे याद है वह देखें (${list.length})</button></div>`;
+  }
+}
+
+function renderAll() {
+  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const el = document.getElementById('allList');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-msg">अभी कुछ भी सेव नहीं है।</div>';
+    return;
+  }
+  el.innerHTML = list.map(m => `
+    <div class="card memory-item">
+      <button onclick="speak(${JSON.stringify('मुझे यह याद है: ' + m.text + '। मुझे यह ' + formatDate(m.timestamp) + ' से याद है।')})">
+        ${escapeHtml(m.text)}
+        <span class="memory-date">${formatDate(m.timestamp)}</span>
+      </button>
+    </div>`).join('') + `<button class="delete-link" onclick="confirmClearAll()">सब कुछ मिटाएं</button>`;
+}
+
+function confirmClearAll() {
+  if (confirm('जो कुछ भी आपने याद रखा है उसे मिटाएं? इसे वापस नहीं लाया जा सकता।')) {
+    saveMemories([]);
+    renderAll();
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function speak(text) {
+  try {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'hi-IN';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }
+  } catch (e) {}
+}
+
+function clearRemember() {
+  document.getElementById('rememberText').value = '';
+}
+function clearFind() {
+  document.getElementById('findText').value = '';
+  document.getElementById('findResult').innerHTML = '';
+}
+
+function saveMemory() {
+  const text = document.getElementById('rememberText').value.trim();
+  if (!text) return;
+  const list = loadMemories();
+  list.push({ id: Date.now().toString(), text, timestamp: new Date().toISOString(), keywords: extractKeywords(text) });
+  saveMemories(list);
+  document.getElementById('rememberStatus').textContent = 'सेव हो गया!';
+  speak('सेव हो गया। ' + text);
+  setTimeout(() => goTo('home'), 900);
+}
+
+function doSearch() {
+  const query = document.getElementById('findText').value.trim();
+  const resultEl = document.getElementById('findResult');
+  if (!query) return;
+  const qWords = extractKeywords(query);
+  const list = loadMemories();
+  let best = null, bestScore = 0;
+  list.forEach(m => {
+    let score = 0;
+    qWords.forEach(w => {
+      if (m.keywords.includes(w)) score += 2;
+      else if (m.text.toLowerCase().includes(w)) score += 1;
+    });
+    if (score > bestScore) { bestScore = score; best = m; }
+  });
+  if (best && bestScore > 0) {
+    const dateStr = formatDate(best.timestamp);
+    resultEl.innerHTML = `<div class="result-box">${escapeHtml(best.text)}<span class="rdate">मुझे यह ${dateStr} से याद है।</span></div>`;
+    speak(best.text + '। मुझे यह ' + dateStr + ' से याद है।');
+  } else {
+    resultEl.innerHTML = `<div class="result-box" style="border-color:var(--amber)">मुझे इसके बारे में अभी कुछ याद नहीं है। क्या आप "कुछ याद रखें" से इसे जोड़ना चाहेंगी?</div>`;
+    speak('मुझे इसके बारे में अभी कुछ याद नहीं है।');
+  }
+}
+
+function setupRecognition(micId, statusId, targetInputId, noSupportId, onFinal) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micEl = document.getElementById(micId);
+  const statusEl = document.getElementById(statusId);
+  const noSupportEl = document.getElementById(noSupportId);
+  if (!SpeechRecognition) {
+    noSupportEl.style.display = 'block';
+    micEl.style.opacity = '0.4';
+    return;
+  }
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'hi-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  micEl.addEventListener('click', () => {
+    try {
+      micEl.classList.add('listening');
+      statusEl.textContent = 'सुन रहा हूं...';
+      recognition.start();
+    } catch (e) {}
+  });
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById(targetInputId).value = transcript;
+    statusEl.textContent = 'मिल गया — नीचे जांचें और सेव करें';
+    if (onFinal) onFinal(transcript);
+  };
+  recognition.onerror = () => {
+    statusEl.textContent = 'समझ नहीं आया — फिर से कोशिश करें या टाइप करें';
+  };
+  recognition.onend = () => {
+    micEl.classList.remove('listening');
+  };
+}
+
+setupRecognition('rememberMic', 'rememberStatus', 'rememberText', 'rememberNoSupport');
+setupRecognition('findMic', 'findStatus', 'findText', 'findNoSupport', () => { doSearch(); document.getElementById('findStatus').textContent = 'यह मिला'; });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+renderRecent();
+</script>
+</body>
+</html>
