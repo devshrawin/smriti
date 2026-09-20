@@ -2,7 +2,7 @@
   "name": "स्मृति (Smriti)",
   "short_name": "स्मृति",
   "description": "बोलकर याद रखें, बोलकर पूछें",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FBF7EF",

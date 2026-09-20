@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>स्मृति</title>
+<meta name="description" content="स्मृति — बोलकर याद रखें, बोलकर पूछें">
+<meta name="theme-color" content="#2F6F62">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7EF;
+    --card: #F4EEE1;
+    --pill: #EADFC8;
+    --ink: #3A3229;
+    --ink-soft: #8A7A5C;
+    --divider: #E4D9C2;
+    --teal: #2F6F62;
+    --amber: #C97A2B;
+    --teal-shadow: rgba(47,111,98,0.28);
+    --amber-shadow: rgba(201,122,43,0.28);
+    --card-shadow: rgba(60,50,30,0.12);
+    --rose: #B5473F;
+    --page-bg: #EFE6D6;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #221E19;
+      --card: #2E2822;
+      --pill: #362F27;
+      --ink: #F3ECDD;
+      --ink-soft: #B9AD98;
+      --divider: #3D362D;
+      --teal: #5CB39E;
+      --amber: #E0A059;
+      --teal-shadow: rgba(92,179,158,0.35);
+      --amber-shadow: rgba(224,160,89,0.3);
+      --card-shadow: rgba(0,0,0,0.3);
+      --page-bg: #171310;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #221E19;
+    --card: #2E2822;
+    --pill: #362F27;
+    --ink: #F3ECDD;
+    --ink-soft: #B9AD98;
+    --divider: #3D362D;
+    --teal: #5CB39E;
+    --amber: #E0A059;
+    --teal-shadow: rgba(92,179,158,0.35);
+    --amber-shadow: rgba(224,160,89,0.3);
+    --card-shadow: rgba(0,0,0,0.3);
+    --page-bg: #171310;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: 'Poppins', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hi-text { font-family: 'Tiro Devanagari Hindi', serif; }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+    min-height: 100vh;
+    background: var(--bg);
+    position: relative;
+  }
+  .lang-switch {
+    position: absolute;
+    top: 28px;
+    right: 20px;
+    display: flex;
+    background: var(--pill);
+    border-radius: 24px;
+    padding: 4px;
+  }
+  .lang-switch button {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 9px 15px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .lang-switch button.active {
+    background: var(--teal);
+    color: var(--bg);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding-top: 44px;
+  }
+  .logo-mark circle:nth-child(1) { stroke: var(--teal); opacity: 0.35; }
+  .logo-mark circle:nth-child(2) { stroke: var(--teal); opacity: 0.65; }
+  .logo-mark circle:nth-child(3) { fill: var(--teal); }
+  header h1 {
+    font-size: 27px;
+    margin: 0;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  header .tagline {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 15px;
+    width: 100%;
+  }
+  .header-top { display: flex; align-items: center; gap: 10px; flex: 1; }
+
+  .big-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 28px 24px;
+    border: none;
+    border-radius: 28px;
+    cursor: pointer;
+    margin-bottom: 18px;
+    text-align: left;
+  }
+  .big-btn:active { transform: translateY(2px); }
+  .big-btn .icon-wrap { flex-shrink: 0; display: flex; }
+  .btn-remember { background: var(--teal); box-shadow: 0 10px 24px var(--teal-shadow); }
+  .btn-find { background: var(--amber); box-shadow: 0 10px 24px var(--amber-shadow); }
+  .big-btn .label {
+    font-size: 24px;
+    color: var(--bg);
+    line-height: 1.25;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .recent-title {
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin: 30px 0 14px;
+  }
+  .memory-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .memory-item button.memory-text {
+    background: none;
+    border: none;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 18px;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    line-height: 1.35;
+  }
+  .memory-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .memory-date {
+    display: block;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .empty-msg {
+    color: var(--ink-soft);
+    font-size: 18px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .back-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 0 20px;
+  }
+  .back-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--pill);
+    border: none;
+    color: var(--ink);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .back-title { font-size: 21px; color: var(--ink); }
+
+  .status-box {
+    text-align: center;
+    padding: 20px 10px 30px;
+  }
+  .status-text {
+    font-size: 24px;
+    color: var(--teal);
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .screen#find .status-text { color: var(--amber); }
+
+  .mic-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .ripple {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: var(--teal);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .screen#find .ripple { background: var(--amber); }
+  .mic-wrap.listening .ripple {
+    animation: smritiRipple 2.4s ease-out infinite;
+  }
+  .mic-wrap.listening .ripple:nth-child(2) { animation-delay: 0.8s; }
+  .mic-wrap.listening .ripple:nth-child(3) { animation-delay: 1.6s; }
+  @keyframes smritiRipple {
+    0% { transform: scale(0.55); opacity: 0.5; }
+    100% { transform: scale(2.1); opacity: 0; }
+  }
+  .mic-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 12px 30px var(--teal-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen#find .mic-circle { background: var(--amber); box-shadow: 0 12px 30px var(--amber-shadow); }
+
+  textarea, input[type=text] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 19px;
+    padding: 20px;
+    border-radius: 22px;
+    border: none;
+    background: var(--card);
+    color: var(--ink);
+    resize: vertical;
+    margin-bottom: 16px;
+    min-height: 100px;
+  }
+  input[type=text] { min-height: unset; }
+  .action-row {
+    display: flex;
+    gap: 14px;
+  }
+  .action-row button {
+    flex: 1;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 20px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+  }
+  .save-btn { background: var(--teal); color: var(--bg); }
+  .search-btn { background: var(--amber); color: var(--bg); }
+  .cancel-btn { background: var(--pill); color: var(--ink-soft); }
+
+  .photo-row { margin-bottom: 16px; }
+  .photo-add-btn {
+    width: 100%;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 16px;
+    border: none;
+    border-radius: 20px;
+    background: var(--pill);
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .photo-preview-wrap { position: relative; display: block; }
+  .photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 20px; display: block; }
+  .photo-remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .soundbars {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .soundbars .bar {
+    width: 6px;
+    border-radius: 3px;
+    background: var(--amber);
+    animation: smritiBar 1.1s ease-in-out infinite;
+  }
+  .soundbars .bar:nth-child(1) { height: 16px; }
+  .soundbars .bar:nth-child(2) { height: 26px; animation-delay: 0.15s; }
+  .soundbars .bar:nth-child(3) { height: 12px; animation-delay: 0.3s; }
+  .soundbars .bar:nth-child(4) { height: 22px; animation-delay: 0.45s; }
+  @keyframes smritiBar {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+
+  .result-box {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 30px 24px;
+    box-shadow: 0 8px 20px var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .result-box .rquery { font-size: 17px; color: var(--ink-soft); }
+  .result-box .rdivider { height: 1px; background: var(--divider); }
+  .result-box .ranswer { font-size: 24px; color: var(--ink); font-weight: 600; line-height: 1.5; }
+  .result-box .rmeta { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-soft); }
+  .result-box img.memory-thumb { width: 100%; height: 160px; border-radius: 18px; }
+  .result-box.notfound { border: 2px solid var(--amber); background: transparent; }
+
+  .no-support {
+    font-size: 16px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 10px;
+  }
+  .delete-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    color: var(--rose);
+    font-size: 16px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- होम स्क्रीन / Home screen -->
+  <div class="screen active" id="home">
+    <div class="lang-switch">
+      <button id="langBtnHi" onclick="setLang('hi')">हिं</button>
+      <button id="langBtnEn" onclick="setLang('en')">EN</button>
+    </div>
+    <header>
+      <svg class="logo-mark" width="34" height="34" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="32" fill="none" stroke-width="6"></circle>
+        <circle cx="45" cy="45" r="20" fill="none" stroke-width="7"></circle>
+        <circle cx="45" cy="45" r="8"></circle>
+      </svg>
+      <div>
+        <h1 class="hi-text" data-i18n="appName"></h1>
+      </div>
+    </header>
+    <p class="tagline" data-i18n="appTagline"></p>
+
+    <div style="margin-top:24px;">
+      <button class="big-btn btn-remember" onclick="goTo('remember')">
+        <span class="icon-wrap">
+          <svg width="34" height="34" viewBox="0 0 40 40">
+            <rect x="13" y="4" width="14" height="22" rx="7" fill="none" stroke="var(--bg)" stroke-width="3"></rect>
+            <path d="M8 18 v4 a12 12 0 0 0 24 0 v-4" fill="none" stroke="var(--bg)" stroke-width="3"></path>
+            <line x1="20" y1="34" x2="20" y2="38" stroke="var(--bg)" stroke-width="3"></line>
+          </svg>
+        </span>
+        <span class="label hi-text" data-i18n="btnRemember"></span>
+      </button>
+      <button class="big-btn btn-find" onclick="goTo('find')">
+        <span class="icon-wrap">
+          <svg width="34" height="34" viewBox="0 0 40 40">
+            <circle cx="17" cy="17" r="12" fill="none" stroke="var(--bg)" stroke-width="3.5"></circle>
+            <line x1="26" y1="26" x2="35" y2="35" stroke="var(--bg)" stroke-width="3.5" stroke-linecap="round"></line>
+          </svg>
+        </span>
+        <span class="label hi-text" data-i18n="btnFind"></span>
+      </button>
+    </div>
+
+    <div class="recent-title" data-i18n="recentTitle"></div>
+    <div id="recentList"></div>
+  </div>
+
+  <!-- याद रखने की स्क्रीन / Remember screen -->
+  <div class="screen" id="remember">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')">←</button>
+      <span class="back-title hi-text" data-i18n="btnRemember"></span>
+    </div>
+    <div class="status-box">
+      <div class="status-text hi-text" id="rememberStatus"></div>
+      <div class="mic-wrap" id="rememberMic">
+        <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+        <div class="mic-circle">
+          <svg width="48" height="48" viewBox="0 0 40 40">
+            <rect x="13" y="4" width="14" height="22" rx="7" fill="var(--bg)"></rect>
+            <path d="M8 18 v4 a12 12 0 0 0 24 0 v-4" fill="none" stroke="var(--bg)" stroke-width="3.5"></path>
+            <line x1="20" y1="34" x2="20" y2="38" stroke="var(--bg)" stroke-width="3.5"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <textarea id="rememberText" rows="3" class="hi-text" data-i18n-placeholder="rememberPlaceholder"></textarea>
+
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+    <div class="photo-row" id="photoRow">
+      <button class="photo-add-btn" id="photoAddBtn" onclick="document.getElementById('photoInput').click()">
+        <span>📷</span> <span data-i18n="addPhoto"></span>
+      </button>
+    </div>
+
+    <div class="action-row">
+      <button class="cancel-btn hi-text" onclick="clearRemember()" data-i18n="clear"></button>
+      <button class="save-btn hi-text" onclick="saveMemory()" data-i18n="save"></button>
+    </div>
+    <p class="no-support" id="rememberNoSupport" style="display:none" data-i18n="noSupport"></p>
+  </div>
+
+  <!-- खोजने की स्क्रीन / Find screen -->
+  <div class="screen" id="find">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')">←</button>
+      <span class="back-title hi-text" data-i18n="btnFind"></span>
+    </div>
+    <div class="status-box">
+      <div class="status-text hi-text" id="findStatus"></div>
+      <div class="mic-wrap" id="findMic">
+        <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+        <div class="mic-circle">
+          <svg width="46" height="46" viewBox="0 0 40 40">
+            <circle cx="17" cy="17" r="12" fill="none" stroke="var(--bg)" stroke-width="4"></circle>
+            <line x1="26" y1="26" x2="35" y2="35" stroke="var(--bg)" stroke-width="4" stroke-linecap="round"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <input type="text" id="findText" class="hi-text" data-i18n-placeholder="findPlaceholder">
+    <div class="action-row">
+      <button class="cancel-btn hi-text" onclick="clearFind()" data-i18n="clear"></button>
+      <button class="search-btn hi-text" onclick="doSearch()" data-i18n="searchBtn"></button>
+    </div>
+    <p class="no-support" id="findNoSupport" style="display:none" data-i18n="noSupport"></p>
+    <div id="findResult"></div>
+  </div>
+
+  <!-- सभी यादें स्क्रीन / All memories screen -->
+  <div class="screen" id="all">
+    <div class="back-row">
+      <button class="back-btn" onclick="goTo('home')">←</button>
+      <span class="back-title hi-text" data-i18n="allTitle"></span>
+    </div>
+    <div id="allList"></div>
+  </div>
+
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+const STORAGE_KEY = 'smriti.memories';
+const LANG_KEY = 'smriti.lang';
+const MAX_PHOTO_DIM = 640;
+const PHOTO_QUALITY = 0.6;
+
+const I18N = {
+  hi: {
+    htmlLang: 'hi',
+    speechLang: 'hi-IN',
+    appName: 'स्मृति',
+    appTagline: 'बटन दबाएं और बस बोलें',
+    btnRemember: 'कुछ याद रखें',
+    btnFind: 'कुछ खोजें',
+    recentTitle: 'पिछली यादें',
+    allTitle: 'जो कुछ भी मुझे याद है',
+    back: 'वापस',
+    rememberPrompt: 'सुन रही हूँ…',
+    rememberIdle: 'माइक दबाएं और बताएं कि क्या याद रखना है',
+    rememberPlaceholder: 'उदाहरण: मैंने चाबियां रसोई की दराज़ में रखीं',
+    findPrompt: 'सुन रही हूँ…',
+    findIdle: 'माइक दबाएं और पूछें कि कोई चीज़ कहाँ है',
+    findPlaceholder: 'उदाहरण: चाबियां कहाँ हैं',
+    clear: 'मिटाएं',
+    save: 'सेव करें',
+    searchBtn: 'फिर से खोजें',
+    addPhoto: 'फोटो जोड़ें',
+    noSupport: 'इस ब्राउज़र में आवाज़ इनपुट उपलब्ध नहीं है — कृपया ऊपर बॉक्स में टाइप करें।',
+    heard: 'मिल गया — नीचे जांचें और सेव करें',
+    heardFind: 'मिल गया',
+    notUnderstood: 'समझ नहीं आया — फिर से कोशिश करें या टाइप करें',
+    savedStatus: 'सेव हो गया!',
+    savedSpeech: 'सेव हो गया। ',
+    emptyRecent: 'अभी कुछ भी सेव नहीं है। पहली चीज़ जोड़ने के लिए "कुछ याद रखें" दबाएं।',
+    emptyAll: 'अभी कुछ भी सेव नहीं है।',
+    viewAll: (n) => `जो कुछ भी मुझे याद है वह देखें (${n})`,
+    deleteAll: 'सब कुछ मिटाएं',
+    confirmDeleteAll: 'जो कुछ भी आपने याद रखा है उसे मिटाएं? इसे वापस नहीं लाया जा सकता।',
+    youAsked: (q) => `आपने पूछा: "${q}"`,
+    rememberedOn: (d) => `याद किया: ${d}`,
+    recallPrefix: 'मुझे यह याद है: ',
+    recallSince: (d) => `। मुझे यह ${d} से याद है।`,
+    notFound: 'मुझे इसके बारे में अभी कुछ याद नहीं है। क्या आप "कुछ याद रखें" से इसे जोड़ना चाहेंगी?',
+    notFoundSpeech: 'मुझे इसके बारे में अभी कुछ याद नहीं है।',
+    months: ["जनवरी","फ़रवरी","मार्च","अप्रैल","मई","जून","जुलाई","अगस्त","सितंबर","अक्टूबर","नवंबर","दिसंबर"],
+    stopwords: ['मैंने','मैं','है','हैं','था','थी','थे','में','पर','को','का','की','के','यह','वह','कहाँ','कहां','कुछ','रखा','रखी','रखे','रख','रखें','याद','ढूंढें','ढूंढो','खोजें','खोजो','कि','से','और','भी','हो','हूं','हूँ','कहा','गया','गई','थीं','उस','इस']
+  },
+  en: {
+    htmlLang: 'en',
+    speechLang: 'en-IN',
+    appName: 'Smriti',
+    appTagline: 'Press a button and just speak',
+    btnRemember: 'Remember something',
+    btnFind: 'Find something',
+    recentTitle: 'Recently remembered',
+    allTitle: 'Everything I remember',
+    back: 'Back',
+    rememberPrompt: 'Listening…',
+    rememberIdle: 'Press the mic and say what to remember',
+    rememberPlaceholder: 'Example: I put the keys in the kitchen drawer',
+    findPrompt: 'Listening…',
+    findIdle: 'Press the mic and ask where something is',
+    findPlaceholder: 'Example: Where are the keys',
+    clear: 'Clear',
+    save: 'Save',
+    searchBtn: 'Search again',
+    addPhoto: 'Add a photo',
+    noSupport: 'Voice input is not available in this browser — please type in the box above.',
+    heard: 'Got it — check below and save',
+    heardFind: 'Found it',
+    notUnderstood: "Didn't catch that — try again or type it",
+    savedStatus: 'Saved!',
+    savedSpeech: 'Saved. ',
+    emptyRecent: 'Nothing saved yet. Press "Remember something" to add the first one.',
+    emptyAll: 'Nothing saved yet.',
+    viewAll: (n) => `See everything I remember (${n})`,
+    deleteAll: 'Delete everything',
+    confirmDeleteAll: 'Delete everything you remember? This cannot be undone.',
+    youAsked: (q) => `You asked: "${q}"`,
+    rememberedOn: (d) => `Remembered on: ${d}`,
+    recallPrefix: 'I remember this: ',
+    recallSince: (d) => `. I remember this from ${d}.`,
+    notFound: 'I don’t remember anything about that yet. Want to add it with "Remember something"?',
+    notFoundSpeech: "I don't remember anything about that yet.",
+    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    stopwords: ['i','me','my','is','are','was','were','the','a','an','in','on','at','to','of','it','where','did','do','does','put','keep','kept','put','find','remember','that','this','and','also']
+  }
+};
+
+let currentLang = localStorage.getItem(LANG_KEY) || 'hi';
+let pendingPhoto = null;
+function t() { return I18N[currentLang]; }
+
+function loadMemories() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function saveMemories(list) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function extractKeywords(text, lang) {
+  const stopwords = new Set(I18N[lang].stopwords);
+  return text.toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !stopwords.has(w));
+}
+function formatDate(iso) {
+  const d = new Date(iso);
+  return `${d.getDate()} ${t().months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = t().htmlLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t()[el.dataset.i18n];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t()[el.dataset.i18nPlaceholder];
+  });
+  document.getElementById('langBtnHi').classList.toggle('active', currentLang === 'hi');
+  document.getElementById('langBtnEn').classList.toggle('active', currentLang === 'en');
+  document.getElementById('rememberStatus').textContent = t().rememberIdle;
+  document.getElementById('findStatus').textContent = t().findIdle;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  applyTranslations();
+  updateRecognitionLang();
+  renderRecent();
+  const activeScreen = document.querySelector('.screen.active').id;
+  if (activeScreen === 'all') renderAll();
+}
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screen).classList.add('active');
+  if (screen === 'home') renderRecent();
+  if (screen === 'all') renderAll();
+  if (screen === 'remember') {
+    document.getElementById('rememberText').value = '';
+    document.getElementById('rememberStatus').textContent = t().rememberIdle;
+    clearPendingPhoto();
+  }
+  if (screen === 'find') { document.getElementById('findText').value=''; document.getElementById('findResult').innerHTML=''; document.getElementById('findStatus').textContent=t().findIdle; }
+}
+
+function renderMemoryCard(m, i) {
+  const speech = t().recallPrefix + m.text + t().recallSince(formatDate(m.timestamp));
+  const marker = m.photo
+    ? `<img class="memory-thumb" src="${m.photo}" alt="" onclick="event.stopPropagation(); openLightbox('${m.photo}')">`
+    : `<span class="memory-dot" style="background:${i % 2 === 0 ? 'var(--teal)' : 'var(--amber)'}"></span>`;
+  return `
+    <div class="card">
+      ${marker}
+      <button class="memory-text hi-text" onclick="speak(${JSON.stringify(speech)})">
+        ${escapeHtml(m.text)}
+        <span class="memory-date">${formatDate(m.timestamp)}</span>
+      </button>
+    </div>`;
+}
+
+function renderRecent() {
+  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const el = document.getElementById('recentList');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty-msg hi-text">${escapeHtml(t().emptyRecent)}</div>`;
+    return;
+  }
+  const shown = list.slice(0,5);
+  el.innerHTML = shown.map((m,i) => renderMemoryCard(m,i)).join('');
+  if (list.length > 5) {
+    el.innerHTML += `<div class="card"><button class="memory-text hi-text" onclick="goTo('all')">${escapeHtml(t().viewAll(list.length))}</button></div>`;
+  }
+}
+
+function renderAll() {
+  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const el = document.getElementById('allList');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty-msg hi-text">${escapeHtml(t().emptyAll)}</div>`;
+    return;
+  }
+  el.innerHTML = list.map((m,i) => renderMemoryCard(m,i)).join('') + `<button class="delete-link" onclick="confirmClearAll()">${escapeHtml(t().deleteAll)}</button>`;
+}
+
+function confirmClearAll() {
+  if (confirm(t().confirmDeleteAll)) {
+    saveMemories([]);
+    renderAll();
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function speak(text) {
+  try {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = t().speechLang;
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }
+  } catch (e) {}
+}
+
+function clearRemember() {
+  document.getElementById('rememberText').value = '';
+  clearPendingPhoto();
+}
+function clearFind() {
+  document.getElementById('findText').value = '';
+  document.getElementById('findResult').innerHTML = '';
+}
+
+function clearPendingPhoto() {
+  pendingPhoto = null;
+  document.getElementById('photoInput').value = '';
+  renderPhotoRow();
+}
+
+function renderPhotoRow() {
+  const row = document.getElementById('photoRow');
+  if (pendingPhoto) {
+    row.innerHTML = `
+      <div class="photo-preview-wrap">
+        <img class="photo-preview" src="${pendingPhoto}" alt="">
+        <button class="photo-remove-btn" onclick="clearPendingPhoto()">✕</button>
+      </div>`;
+  } else {
+    row.innerHTML = `
+      <button class="photo-add-btn" id="photoAddBtn" onclick="document.getElementById('photoInput').click()">
+        <span>📷</span> <span>${escapeHtml(t().addPhoto)}</span>
+      </button>`;
+  }
+}
+
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > h && w > MAX_PHOTO_DIM) { h = Math.round(h * MAX_PHOTO_DIM / w); w = MAX_PHOTO_DIM; }
+        else if (h > MAX_PHOTO_DIM) { w = Math.round(w * MAX_PHOTO_DIM / h); h = MAX_PHOTO_DIM; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', PHOTO_QUALITY));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('photoInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    pendingPhoto = await compressImage(file);
+    renderPhotoRow();
+  } catch (err) {}
+});
+
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.getElementById('lightboxImg').src = '';
+}
+
+function saveMemory() {
+  const text = document.getElementById('rememberText').value.trim();
+  if (!text) return;
+  const list = loadMemories();
+  const entry = { id: Date.now().toString(), text, timestamp: new Date().toISOString(), lang: currentLang, keywords: extractKeywords(text, currentLang) };
+  if (pendingPhoto) entry.photo = pendingPhoto;
+  list.push(entry);
+  try {
+    saveMemories(list);
+  } catch (err) {
+    delete entry.photo;
+    list[list.length - 1] = entry;
+    saveMemories(list);
+  }
+  document.getElementById('rememberStatus').textContent = t().savedStatus;
+  speak(t().savedSpeech + text);
+  setTimeout(() => goTo('home'), 900);
+}
+
+function doSearch() {
+  const query = document.getElementById('findText').value.trim();
+  const resultEl = document.getElementById('findResult');
+  if (!query) return;
+  const qWords = extractKeywords(query, currentLang);
+  const list = loadMemories();
+  let best = null, bestScore = 0;
+  list.forEach(m => {
+    const mKeywords = m.keywords || extractKeywords(m.text, m.lang || 'hi');
+    let score = 0;
+    qWords.forEach(w => {
+      if (mKeywords.includes(w)) score += 2;
+      else if (m.text.toLowerCase().includes(w)) score += 1;
+    });
+    if (score > bestScore) { bestScore = score; best = m; }
+  });
+  const soundbars = `<div class="soundbars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>`;
+  if (best && bestScore > 0) {
+    const dateStr = formatDate(best.timestamp);
+    const thumb = best.photo ? `<img class="memory-thumb" src="${best.photo}" alt="" onclick="openLightbox('${best.photo}')">` : '';
+    resultEl.innerHTML = `${soundbars}<div class="result-box">
+      ${thumb}
+      <div class="rquery hi-text">${escapeHtml(t().youAsked(query))}</div>
+      <div class="rdivider"></div>
+      <div class="ranswer hi-text">${escapeHtml(best.text)}</div>
+      <div class="rmeta hi-text">${escapeHtml(t().rememberedOn(dateStr))}</div>
+    </div>`;
+    speak(best.text + t().recallSince(dateStr));
+  } else {
+    resultEl.innerHTML = `<div class="result-box notfound hi-text">${escapeHtml(t().notFound)}</div>`;
+    speak(t().notFoundSpeech);
+  }
+}
+
+let rememberRecognition, findRecognition;
+
+function setupRecognition(micWrapId, statusId, targetInputId, noSupportId, onFinal) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micWrap = document.getElementById(micWrapId);
+  const statusEl = document.getElementById(statusId);
+  const noSupportEl = document.getElementById(noSupportId);
+  if (!SpeechRecognition) {
+    noSupportEl.style.display = 'block';
+    micWrap.style.opacity = '0.4';
+    return null;
+  }
+  const recognition = new SpeechRecognition();
+  recognition.lang = t().speechLang;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  micWrap.addEventListener('click', () => {
+    try {
+      recognition.lang = t().speechLang;
+      micWrap.classList.add('listening');
+      statusEl.textContent = t().rememberPrompt;
+      recognition.start();
+    } catch (e) {}
+  });
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById(targetInputId).value = transcript;
+    statusEl.textContent = t().heard;
+    if (onFinal) onFinal(transcript);
+  };
+  recognition.onerror = () => {
+    statusEl.textContent = t().notUnderstood;
+  };
+  recognition.onend = () => {
+    micWrap.classList.remove('listening');
+  };
+  return recognition;
+}
+
+function updateRecognitionLang() {
+  if (rememberRecognition) rememberRecognition.lang = t().speechLang;
+  if (findRecognition) findRecognition.lang = t().speechLang;
+}
+
+rememberRecognition = setupRecognition('rememberMic', 'rememberStatus', 'rememberText', 'rememberNoSupport');
+findRecognition = setupRecognition('findMic', 'findStatus', 'findText', 'findNoSupport', () => { doSearch(); document.getElementById('findStatus').textContent = t().heardFind; });
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+applyTranslations();
+renderPhotoRow();
+renderRecent();
+</script>
+</body>
+</html>
