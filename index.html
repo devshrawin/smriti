@@ -173,6 +173,17 @@
     justify-content: center;
   }
 
+  .warn-note {
+    background: var(--card);
+    border: 2px solid var(--amber);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .warn-note strong { color: var(--amber); }
+
   .cta-bar {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -258,6 +269,10 @@
         <li>नीचे स्क्रॉल करें, "Add to Home Screen" चुनें</li>
         <li>ऊपर दाईं ओर "Add" दबाएं — अब आइकन होम स्क्रीन पर है</li>
       </ol>
+      <div class="warn-note">
+        <div class="hi-text"><strong>⚠️ iPhone पर माइक काम नहीं करता।</strong> Safari में आवाज़ पहचानने की सुविधा (Speech Recognition) अभी तक नहीं है, इसलिए यहाँ बोलकर याद रखना/खोजना संभव नहीं — दोनों जगह टाइप करना होगा। जवाब अभी भी आवाज़ में सुनाई देगा। सबसे अच्छा अनुभव Android + Chrome पर मिलता है।</div>
+        <div class="en" style="margin-top:8px;"><strong>⚠️ The mic doesn't work on iPhone.</strong> Safari doesn't support the Speech Recognition API, so voice input isn't possible here — you'll need to type both to save and to search. Spoken answers still work. For the full voice experience, use Android + Chrome.</div>
+      </div>
     </div>
   </section>
 

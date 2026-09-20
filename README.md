@@ -60,11 +60,21 @@ No backend. No database. No API keys. No bill, ever. The trade-off, stated plain
 
 ## Requirements & honest limits
 
-- Built and tested for **Chrome on Android**.
+- Built and tested for **Chrome on Android** — this is the best experience: voice in, voice out, install-to-home-screen, all work.
 - Needs mic permission once.
 - Data is per-device, per-browser — no cloud sync (yet).
 - No voice support in the browser → both screens fall back to a plain text box.
 - Install it properly: Chrome menu → **"Add to Home screen"** so it opens full-screen like a real app, not a browser tab.
+
+### ⚠️ iPhone / iPad (Safari) — voice input does not work
+
+Safari has never implemented the `SpeechRecognition` Web API — there is no Apple-side equivalent shipped to web pages, and this has been a years-old, unresolved WebKit gap, not something a web app can polyfill or work around. Concretely, on iOS/iPadOS:
+
+- The mic button on **"कुछ याद रखें" (Remember)** and **"कुछ खोजें" (Find)** does nothing — tapping it is a no-op.
+- The app detects this and automatically dims the mic and shows a message to **type instead** — both screens have a full text-box fallback, so the app is still usable, just not hands-free.
+- **Text-to-speech (the phone speaking answers back) still works fine on iPhone** — that direction of the Web Speech API is supported in Safari.
+- Implication for this project: if the primary user is on iPhone, voice *save* and voice *search* become type-to-save and type-to-search. The core value prop (speak instead of type, for someone who may not type comfortably) is Android/Chrome-only until/unless Apple ships `SpeechRecognition` in Safari.
+- **Recommendation**: for an elderly, non-technical user who needs this to be voice-first, an Android phone with Chrome is currently the only path that delivers that. If she's on iPhone already, treat this as a typing app with a bonus that it reads answers aloud.
 
 ## Design
 
