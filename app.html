@@ -63,6 +63,12 @@
   }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
   * { box-sizing: border-box; }
+  button {
+    -webkit-appearance: none;
+    appearance: none;
+    font: inherit;
+    color: inherit;
+  }
   body {
     margin: 0;
     min-height: 100%;
@@ -165,7 +171,7 @@
     margin: 30px 0 14px;
   }
   .memory-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-  .memory-item button.memory-text {
+  button.memory-text {
     background: none;
     border: none;
     color: var(--ink);
@@ -186,6 +192,17 @@
     flex-shrink: 0;
     cursor: pointer;
   }
+  .card.pinned { border: 2px solid var(--amber); }
+  .pin-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    padding: 6px;
+    flex-shrink: 0;
+    opacity: 0.35;
+    cursor: pointer;
+  }
+  .pin-btn.pinned { opacity: 1; }
   .memory-date {
     display: block;
     font-size: 14px;
@@ -577,6 +594,8 @@ const I18N = {
     emptyAll: 'अभी कुछ भी सेव नहीं है।',
     viewAll: (n) => `जो कुछ भी मुझे याद है वह देखें (${n})`,
     deleteAll: 'सब कुछ मिटाएं',
+    pin: 'पिन करें',
+    unpin: 'पिन हटाएं',
     confirmDeleteAll: 'जो कुछ भी आपने याद रखा है उसे मिटाएं? इसे वापस नहीं लाया जा सकता।',
     youAsked: (q) => `आपने पूछा: "${q}"`,
     rememberedOn: (d) => `याद किया: ${d}`,
@@ -617,6 +636,8 @@ const I18N = {
     emptyAll: 'Nothing saved yet.',
     viewAll: (n) => `See everything I remember (${n})`,
     deleteAll: 'Delete everything',
+    pin: 'Pin',
+    unpin: 'Unpin',
     confirmDeleteAll: 'Delete everything you remember? This cannot be undone.',
     youAsked: (q) => `You asked: "${q}"`,
     rememberedOn: (d) => `Remembered on: ${d}`,
@@ -651,7 +672,17 @@ function extractKeywords(text, lang) {
 }
 function formatDate(iso) {
   const d = new Date(iso);
-  return `${d.getDate()} ${t().months[d.getMonth()]} ${d.getFullYear()}`;
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const dateStr = `${d.getDate()} ${t().months[d.getMonth()]} ${d.getFullYear()}`;
+  if (currentLang === 'hi') {
+    const period = hours < 12 ? 'सुबह' : hours < 17 ? 'दोपहर' : 'शाम';
+    const h12 = hours % 12 === 0 ? 12 : hours % 12;
+    return `${dateStr}, ${period} ${h12}:${minutes} बजे`;
+  }
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const h12 = hours % 12 === 0 ? 12 : hours % 12;
+  return `${dateStr}, ${h12}:${minutes} ${ampm}`;
 }
 
 function applyTranslations() {
@@ -691,23 +722,41 @@ function goTo(screen) {
   if (screen === 'find') { document.getElementById('findText').value=''; document.getElementById('findResult').innerHTML=''; document.getElementById('findStatus').textContent=t().findIdle; }
 }
 
+function sortMemories(list) {
+  return list.slice().sort((a, b) => {
+    if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
+}
+
+function togglePin(id) {
+  const list = loadMemories();
+  const m = list.find(x => x.id === id);
+  if (!m) return;
+  m.pinned = !m.pinned;
+  saveMemories(list);
+  renderRecent();
+  if (document.getElementById('all').classList.contains('active')) renderAll();
+}
+
 function renderMemoryCard(m, i) {
   const speech = t().recallPrefix + m.text + t().recallSince(formatDate(m.timestamp));
   const marker = m.photo
     ? `<img class="memory-thumb" src="${m.photo}" alt="" onclick="event.stopPropagation(); openLightbox('${m.photo}')">`
     : `<span class="memory-dot" style="background:${i % 2 === 0 ? 'var(--teal)' : 'var(--amber)'}"></span>`;
   return `
-    <div class="card">
+    <div class="card${m.pinned ? ' pinned' : ''}">
       ${marker}
-      <button class="memory-text hi-text" onclick="speak(${JSON.stringify(speech)})">
+      <button class="memory-text hi-text" onclick="speak(${jsAttr(speech)})">
         ${escapeHtml(m.text)}
         <span class="memory-date">${formatDate(m.timestamp)}</span>
       </button>
+      <button class="pin-btn${m.pinned ? ' pinned' : ''}" onclick="event.stopPropagation(); togglePin(${jsAttr(m.id)})" aria-label="${escapeHtml(m.pinned ? t().unpin : t().pin)}">📌</button>
     </div>`;
 }
 
 function renderRecent() {
-  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const list = sortMemories(loadMemories());
   const el = document.getElementById('recentList');
   if (list.length === 0) {
     el.innerHTML = `<div class="empty-msg hi-text">${escapeHtml(t().emptyRecent)}</div>`;
@@ -721,7 +770,7 @@ function renderRecent() {
 }
 
 function renderAll() {
-  const list = loadMemories().slice().sort((a,b)=> new Date(b.timestamp)-new Date(a.timestamp));
+  const list = sortMemories(loadMemories());
   const el = document.getElementById('allList');
   if (list.length === 0) {
     el.innerHTML = `<div class="empty-msg hi-text">${escapeHtml(t().emptyAll)}</div>`;
@@ -739,6 +788,10 @@ function confirmClearAll() {
 
 function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function jsAttr(value) {
+  return escapeHtml(JSON.stringify(value));
 }
 
 let cachedVoices = [];
