@@ -1,88 +1,117 @@
-# स्मृति (Smriti) — Voice Memory Helper
+<div align="center">
 
-A free, installable, single-file web app (PWA) built to help someone who forgets where they put things (keys, cash, documents, etc.). No account, no server, no ongoing cost — runs entirely in the phone's browser, on-device.
+# 🪔 स्मृति · Smriti
 
-Built for a Hindi-speaking, Android/Chrome, WhatsApp-familiar user who is not technical.
+**Voice memory for the person who keeps forgetting where they put their keys.**
+
+Free forever. No account. No server. No app store. Just talk to your phone.
+
+[![Live demo](https://img.shields.io/badge/demo-Claude%20Artifact-2F6F62?style=for-the-badge)](https://claude.ai/artifact/VRjs6Cq8GbaC9bQiZZffrX)
+![Cost](https://img.shields.io/badge/cost-%E2%82%B90%20forever-C97A2B?style=for-the-badge)
+![Stack](https://img.shields.io/badge/stack-single%20HTML%20file-2B2118?style=for-the-badge)
+![Languages](https://img.shields.io/badge/भाषा-हिंदी%20%2F%20English-2F6F62?style=for-the-badge)
+
+</div>
 
 ---
 
-## 1. What it does
+## The problem
 
-Two big buttons on the home screen:
+Mom forgets where she keeps things. Keys, cash, documents — gone, and no way to ask anyone but herself an hour later. She's not technical. She doesn't want an "app" with menus. She *does* know how to talk into her phone and use WhatsApp.
 
-| Button | What happens |
+## The fix
+
+Two big buttons. That's the whole interface.
+
+| | |
 |---|---|
-| 🎙️ **कुछ याद रखें** (Remember something) | Tap the mic, say a sentence like "मैंने चाबियां रसोई की दराज़ में रखीं" (I put the keys in the kitchen drawer). It's transcribed into a text box, she can check/edit it, then tap **सेव करें** (Save). Stored with today's date automatically. |
-| 🔍 **कुछ खोजें** (Find something) | Tap the mic, ask "चाबियां कहाँ हैं" (Where are the keys). The app searches everything saved, and **speaks the answer out loud**, e.g. "मुझे यह याद है: चाबियां रसोई की दराज़ में हैं। मुझे यह 18 मई 2026 से याद है।" |
+| 🎙️ **कुछ याद रखें** / *Remember something* | Tap → speak → "मैंने चाबियां रसोई की दराज़ में रखीं" → saved with today's date. |
+| 🔍 **कुछ खोजें** / *Find something* | Tap → ask → "चाबियां कहाँ हैं" → phone **speaks back**: *"मुझे यह याद है: चाबियां रसोई की दराज़ में हैं। मुझे यह 18 मई 2026 से याद है।"* |
 
-The home screen also lists the 5 most recent memories as tap-to-hear-again cards, and there's a "जो कुछ भी मुझे याद है" (Everything I remember) screen to browse/delete the full list.
+Home screen also shows the last 5 memories as tap-to-replay cards, plus a full searchable list. Switch the whole UI between Hindi and English with one tap — the toggle in the top corner — and it remembers the choice.
 
-## 2. Architecture
-
-Deliberately the simplest design that satisfies "cheapest, free, always works, nobody has to maintain a server":
-
-```
-Phone (Chrome, Android)
-  └─ Smriti PWA (installed to home screen)
-       ├─ UI: single index.html, inline CSS/JS, Devanagari-friendly font
-       ├─ Input:  Web Speech API (SpeechRecognition, hi-IN)  → text
-       ├─ Output: Web Speech API (SpeechSynthesis, hi-IN)    → voice reply
-       ├─ Storage: browser localStorage (JSON array, on-device only)
-       ├─ Search: local keyword-overlap scorer (no network, no AI call)
-       └─ Offline shell: sw.js caches the static files
-```
-
-- **Speech-to-text**: Browser's built-in `SpeechRecognition` API (`webkitSpeechRecognition`), `lang=hi-IN`. This runs on Google's cloud speech engine on Android Chrome — the same engine behind Google Assistant's Hindi recognition. Free, no API key, needs internet.
-- **Text-to-speech**: Browser's built-in `speechSynthesis` API, also `hi-IN`.
-- **Storage**: `localStorage` — a JSON array of `{ text, timestamp, keywords }` objects. Nothing leaves the phone; there is no backend/database.
-- **Search**: naive keyword-overlap scoring. Query words (minus Hindi stopwords like "है", "में", "को") are matched against each saved memory's keywords; highest-scoring memory is read aloud. Not AI — just word matching, sufficient for short "where did I put X" queries.
-- **PWA shell**: `manifest.json` + `sw.js` make it installable to the home screen with its own icon, and cache the static shell for instant load (voice features still need internet).
-
-No backend, no database, no API keys, no recurring cost. Trade-off: data lives only on this phone/browser — no cross-device sync or automatic backup (see Limits below).
-
-### Why not native app or WhatsApp bot?
+## Why this and not [other thing]
 
 | Option | Verdict |
 |---|---|
-| Native Android app | Uses the same underlying OS speech APIs as the PWA — no functional gain, much more build/deploy effort (Kotlin, signing, distribution). Not worth it here. |
-| WhatsApp bot | Best possible UX since she already lives in WhatsApp — no new app icon at all. But requires a real backend: a hosted webhook, WhatsApp Business/Twilio API, and a speech-to-text API call per message. That's ongoing infrastructure someone has to keep running; if it goes down, she can't find her keys. Viable as a **phase 2** once the PWA is proven, not as the first version. |
-| This PWA | Zero servers, zero cost, zero maintenance surface. Ships today. |
+| **This PWA** | Zero servers, zero cost, zero maintenance. Works today, forever, for free. ✅ |
+| Native Android app | Same OS speech engine under the hood — no functional gain, way more build/signing/distribution effort for nothing. ❌ |
+| WhatsApp bot | Best possible UX (she never leaves an app she already knows) — but needs a real hosted backend (webhook + WhatsApp Business/Twilio API + speech-to-text call per message). Something to keep alive, or she's stuck the day it breaks. Good **phase 2**, not phase 1. ⏳ |
 
-## 3. Requirements & limits
+## Architecture
 
-- Works best in **Chrome on Android** (built and tested for this).
-- Needs microphone permission the first time (browser will prompt).
-- Data is tied to **that specific phone + browser**. Clearing browser data/cache, or switching phones, wipes it — no cloud backup built in yet.
-- If voice recognition doesn't work (unsupported browser), both screens have a text box as a fallback — she can type instead of speaking.
-- Use the browser menu → **"Add to Home screen"** (or the install prompt Chrome shows automatically) so it opens as a standalone app with its own icon, not a browser tab.
+Deliberately boring. Boring means it never goes down.
 
-## 4. Design
+```
+Phone (Chrome, Android)
+  └─ Smriti — installed to home screen as a PWA
+       ├─ UI      → single index.html, inline CSS/JS
+       ├─ Hear    → Web Speech API  (SpeechRecognition, hi-IN / en-IN)
+       ├─ Speak   → Web Speech API  (SpeechSynthesis,   hi-IN / en-IN)
+       ├─ Store   → localStorage, on-device only, JSON array
+       ├─ Search  → local keyword-overlap scorer, no network, no AI
+       └─ Offline → sw.js caches the shell for instant load
+```
 
-Warm, high-contrast, large-touch-target design built for an elderly user:
-- Paper-cream background, teal for "remember" actions, amber for "find" actions.
-- 26px+ buttons, 19-22px body text, Hind font for clean Devanagari rendering.
-- Minimal steps: home → one button → mic → done. No menus, no settings screen to get lost in.
+No backend. No database. No API keys. No bill, ever. The trade-off, stated plainly: memories live on *that one phone* — clearing browser data or switching phones wipes them. Backup/export is on the roadmap, not built yet.
 
-## 5. Customizing it further
+- **Hindi speech recognition actually works**: `webkitSpeechRecognition` + `lang="hi-IN"` runs on the same Google cloud speech engine as Google Assistant's Hindi mode. No API key, free, just needs internet for that one moment of listening.
+- **Search isn't AI** — it's keyword overlap against a stopword-filtered query. That's plenty for "where are the X" style questions and costs nothing to run.
 
-- **Font size** — search `font-size` in the `<style>` section (`.big-btn` is `26px`, body text `19-22px`).
-- **Colors** — defined once under `:root` (`--teal`, `--amber`, etc.).
-- **Stopwords / search accuracy** — the `STOPWORDS` set in `<script>`; add filler words she tends to use if search misses things.
-- **App icon** — regenerate `icons/icon-192.png` / `icons/icon-512.png` (see below).
+## Requirements & honest limits
 
-## 6. Ideas / next steps
+- Built and tested for **Chrome on Android**.
+- Needs mic permission once.
+- Data is per-device, per-browser — no cloud sync (yet).
+- No voice support in the browser → both screens fall back to a plain text box.
+- Install it properly: Chrome menu → **"Add to Home screen"** so it opens full-screen like a real app, not a browser tab.
 
-- **WhatsApp bridge**: let her send a voice note to a fixed WhatsApp contact instead of opening an app. Needs Meta Cloud API (free tier, limited messages/month) or Twilio WhatsApp sandbox + a small serverless webhook (e.g. Cloudflare Workers free tier) that transcribes (Whisper API) and replies. Real infra to maintain — the natural phase 2 if the PWA proves out but zero-app-install UX becomes the priority.
-- **Backup/export**: since data is localStorage-only, add an export-to-text or share-to-WhatsApp-self button so it can be periodically backed up.
-- **Synonym map**: e.g. map "पैसे"/"नकद"/"रुपये" all to "cash" so search catches more phrasings — no AI needed, just a lookup table alongside `STOPWORDS`.
-- **Auto-listen on screen open**: start the mic automatically when she opens "याद रखें"/"खोजें" to cut a tap.
-- **Gentle reminder nudges**: a periodic notification asking "just put something down? want to save it?" — needs the PWA installed and Notification permission; more complex, optional.
+## Design
 
-## 7. Files
+Built for eyes and hands that don't want to fight a UI:
+- Warm paper background, teal = remember, amber = find — two colors, two meanings, always.
+- 26px+ buttons, 19–22px text, Hind font for crisp Devanagari.
+- Home → one tap → mic → done. No settings screen to get lost in.
+
+## Ship it: GitHub Pages in 2 minutes
+
+This repo is already static — no build step. To get a public HTTPS link:
+
+1. Push this repo to GitHub (already done if you're reading this from `github.com/devshrawin/smriti`).
+2. On GitHub: **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+4. Branch: **`main`**, folder: **`/ (root)`** → **Save**.
+5. Wait ~1 minute, then your app is live at:
+   ```
+   https://devshrawin.github.io/smriti/
+   ```
+6. Open that link on the phone → Chrome menu → **Add to Home screen**. Done — real app icon, works offline-shell, zero hosting cost.
+
+Every `git push` to `main` after this redeploys automatically — no extra steps.
+
+## Customizing
+
+| Want to change... | Where |
+|---|---|
+| Font size | `.big-btn` (26px) / body text (19–22px) in `<style>` |
+| Colors | Once, under `:root` — `--teal`, `--amber`, etc. |
+| Search accuracy | `stopwords` arrays inside `I18N.hi` / `I18N.en` in `<script>` |
+| App icon | Regenerate `icons/icon-192.png` / `icons/icon-512.png` |
+| Add a language | Add a new key to the `I18N` object with the same fields as `hi`/`en`, add a toggle button |
+
+## Roadmap
+
+- [ ] **WhatsApp bridge** — voice-note a fixed contact instead of opening an app. Needs a small hosted webhook (Cloudflare Workers free tier) + WhatsApp Business/Twilio API + Whisper for transcription. Real infra — phase 2, only if zero-app-install becomes the priority.
+- [ ] **Export/backup** — one button to export memories as text, so they survive a phone switch.
+- [ ] **Synonym map** — "पैसे" / "नकद" / "रुपये" all mean "cash"; catch more phrasings without AI.
+- [ ] **Auto-listen** — start the mic the instant a screen opens, save one tap.
+- [ ] **Gentle nudges** — a notification asking "just put something down?" (needs PWA install + notification permission).
+
+## Files
 
 ```
 smriti/
-├── index.html      # the entire app — UI, styles, logic
+├── index.html      # the entire app — UI, styles, logic, i18n
 ├── manifest.json   # PWA metadata (name, icons, colors)
 ├── sw.js           # service worker — offline shell caching
 ├── icons/
@@ -91,4 +120,10 @@ smriti/
 └── README.md
 ```
 
-Open `index.html` directly in Chrome, or host the folder anywhere static (GitHub Pages, Netlify, etc.) — no build step needed.
+No build step, no dependencies to install. Open `index.html` in a browser, or host the folder anywhere static.
+
+---
+
+<div align="center">
+<sub>Built because forgetting where you put your keys shouldn't need a subscription.</sub>
+</div>
