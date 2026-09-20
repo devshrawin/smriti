@@ -6,7 +6,7 @@
 
 Free forever. No account. No server. No app store. Just talk to your phone.
 
-[![Live demo](https://img.shields.io/badge/demo-Claude%20Artifact-2F6F62?style=for-the-badge)](https://claude.ai/artifact/VRjs6Cq8GbaC9bQiZZffrX)
+[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-2F6F62?style=for-the-badge)](https://devshrawin.github.io/smriti/)
 ![Cost](https://img.shields.io/badge/cost-%E2%82%B90%20forever-C97A2B?style=for-the-badge)
 ![Stack](https://img.shields.io/badge/stack-single%20HTML%20file-2B2118?style=for-the-badge)
 ![Languages](https://img.shields.io/badge/भाषा-हिंदी%20%2F%20English-2F6F62?style=for-the-badge)
