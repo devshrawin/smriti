@@ -590,6 +590,8 @@ const I18N = {
     notUnderstood: 'समझ नहीं आया — फिर से कोशिश करें या टाइप करें',
     savedStatus: 'सेव हो गया!',
     savedSpeech: 'सेव हो गया। ',
+    savedNoPhoto: 'सेव हो गया, लेकिन फोटो नहीं — फोन की जगह भर गई है।',
+    saveFailed: 'सेव नहीं हो पाया — फोन की जगह भर गई है। कृपया कुछ पुरानी यादें मिटाएं।',
     emptyRecent: 'अभी कुछ भी सेव नहीं है। पहली चीज़ जोड़ने के लिए "कुछ याद रखें" दबाएं।',
     emptyAll: 'अभी कुछ भी सेव नहीं है।',
     viewAll: (n) => `जो कुछ भी मुझे याद है वह देखें (${n})`,
@@ -632,6 +634,8 @@ const I18N = {
     notUnderstood: "Didn't catch that — try again or type it",
     savedStatus: 'Saved!',
     savedSpeech: 'Saved. ',
+    savedNoPhoto: 'Saved, but without the photo — the phone is out of space.',
+    saveFailed: 'Could not save — the phone is out of space. Please delete some old memories.',
     emptyRecent: 'Nothing saved yet. Press "Remember something" to add the first one.',
     emptyAll: 'Nothing saved yet.',
     viewAll: (n) => `See everything I remember (${n})`,
@@ -661,7 +665,12 @@ function loadMemories() {
   } catch (e) { return []; }
 }
 function saveMemories(list) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 function extractKeywords(text, lang) {
   const stopwords = new Set(I18N[lang].stopwords);
@@ -805,7 +814,7 @@ function pickVoice(lang) {
   const langPrefix = lang.split('-')[0].toLowerCase();
   const matches = cachedVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
   if (!matches.length) return null;
-  const femaleHint = /female|woman|zira|samantha|veena|lekha|neel|swara|kalpana/i;
+  const femaleHint = /female|woman|zira|samantha|veena|lekha|neerja|swara|kalpana|heera/i;
   return matches.find(v => femaleHint.test(v.name)) || matches[0];
 }
 
@@ -901,16 +910,25 @@ function saveMemory() {
   const entry = { id: Date.now().toString(), text, timestamp: new Date().toISOString(), lang: currentLang, keywords: extractKeywords(text, currentLang) };
   if (pendingPhoto) entry.photo = pendingPhoto;
   list.push(entry);
-  try {
-    saveMemories(list);
-  } catch (err) {
+
+  let saved = saveMemories(list);
+  let droppedPhoto = false;
+  if (!saved && entry.photo) {
     delete entry.photo;
-    list[list.length - 1] = entry;
-    saveMemories(list);
+    saved = saveMemories(list);
+    droppedPhoto = saved;
   }
-  document.getElementById('rememberStatus').textContent = t().savedStatus;
-  speak(t().savedSpeech + text);
-  setTimeout(() => goTo('home'), 900);
+
+  if (!saved) {
+    document.getElementById('rememberStatus').textContent = t().saveFailed;
+    speak(t().saveFailed);
+    return;
+  }
+
+  const message = droppedPhoto ? t().savedNoPhoto : t().savedStatus;
+  document.getElementById('rememberStatus').textContent = message;
+  speak(droppedPhoto ? message : t().savedSpeech + text);
+  setTimeout(() => goTo('home'), droppedPhoto ? 2200 : 900);
 }
 
 function doSearch() {
