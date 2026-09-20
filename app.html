@@ -741,12 +741,29 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+let cachedVoices = [];
+if ('speechSynthesis' in window) {
+  const refreshVoices = () => { cachedVoices = window.speechSynthesis.getVoices(); };
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+function pickVoice(lang) {
+  const langPrefix = lang.split('-')[0].toLowerCase();
+  const matches = cachedVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
+  if (!matches.length) return null;
+  const femaleHint = /female|woman|zira|samantha|veena|lekha|neel|swara|kalpana/i;
+  return matches.find(v => femaleHint.test(v.name)) || matches[0];
+}
+
 function speak(text) {
   try {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = t().speechLang;
+      const voice = pickVoice(u.lang);
+      if (voice) u.voice = voice;
       u.rate = 0.9;
       window.speechSynthesis.speak(u);
     }
